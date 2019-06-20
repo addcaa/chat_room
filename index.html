@@ -1,112 +1,36 @@
-<style>
-.bra{
-    border:1px;
-    border-style:solid;
-    height: 400px;
-    width: 400px;
-    margin:0 auto
-}
-#p {
-    position: relative;
-    width: 50px;
-    min-height: 30px;
-    background: gold;
-    border-radius: 5px;
-    line-height: 50px;
-    word-break: break-word;
-    margin-left: 10px;
-    color: white;
-    padding: 5px;
-    line-height: 18px;
-}
-#p::after {
-    content: "";
-    display: block;
-    position: absolute;
-    width: 0;
-    height: 0;
-    border: 8px solid transparent;
-    border-right-color: gold;
-    top: 15px;
-    left: -14px;
-}
-.a{
-    width: 400px;
-    margin:0 auto
-}
-#bb{
-    height: 20px;
-    width: 400px;
-    margin:0 auto
-}
-#box {
-    width: 500px;
-    height: 300px;
-    overflow-x: hidden;
-    overflow-y: scroll;
-    line-height: 30px;
-    text-align: center;
-}
-#box::-webkit-scrollbar {
-    display: none;
-}
-</style>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>聊天室</title>
+    <title>登陆</title>
 </head>
 <body>
-    <div id="bb"><p style="display:none;">内容不能为空</p></div>
-    <div class="bra"  style="height: 400px; overflow-y:scroll">
-
-        <p id="aa" ></p>
-    </div>
-    <div class="a">
-        <input type="text" id="text">
-        <input type="submit" id="sub" value="发送">
-    </div>
+用户名：<input type="text" id="text">
+<input type="submit" id="sub" value="登陆">
 </body>
 </html>
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
 <script>
-   var ws = new WebSocket("ws://character.com:9502");
-    ws.onopen=function(){
-        $("#sub").blur(function(){
-            $("#bb").find("p").css('display','none');
-        })
-        $(document).keydown(function(event){
-            if(event.keyCode == '13'){
-                alert('您输入的是回车键！');
-                $('#sub').click();
-            }
-        });
 
-            $(document).on("click",'#sub',function () {
-                var text=$("#text").val();
-                if(text==""){
-                    $("#bb").find("p").show("");
-                    return ;
-                }
-                var data={
-                    type:"message",
-                    text:text,
-                    id:111,
-                    data:Date.now()
-                }
-                ws.send(JSON.stringify(data));
-                $("#text").val('');
-            })
+    $("#sub").click(function(){
+        var text=$("#text").val();
+        if(text==""){
+            alert('用户名不能为空');
         }
-
-    ws.onmessage=function(d){
-        var str = d.data;
-        var data=JSON.parse(str);
-
-        $("#aa").append("<p id='p'>"+data.text+"</p>").append('<br>')
-        $('.bra').animate({scrollTop:1000},'slow');
-    }
+        var storage=window.localStorage;
+        $.post(
+                "http://chat.room.com/login.php",
+                {text:text},
+                function(res){
+                    var add=JSON.parse(res);
+                    if(add.on==0){
+                        alert(add.msg);
+                        window.location.replace("http://chat.room.com/chat.html");
+                    }else{
+                        alert('添加失败');
+                    }
+                }
+        )
+    })
 </script>
