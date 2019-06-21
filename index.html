@@ -23,6 +23,7 @@
                 "http://chat.room.com/login.php",
                 {text:text},
                 function(res){
+//                    alert(res);
                     var add=JSON.parse(res);
                     if(add.on==0){
                         alert(add.msg);

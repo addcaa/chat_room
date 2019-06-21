@@ -8,7 +8,7 @@
     }
     #p {
         position: relative;
-        width: 50px;
+        width: 100px;
         min-height: 30px;
         background: gold;
         border-radius: 5px;
@@ -72,8 +72,7 @@
 
 <div class="a">
     <select name="name" id="usera">
-        <option value=""></option>
-        <option value="2">AAAAA</option>
+        <option id="ccc" value=""></option>
     </select>
     <input type="text" id="text">
     <input type="submit" id="sub"value="发送">
@@ -85,17 +84,28 @@
 <script>
     $(function(){
         $.get(
-                'http://chat.room.com/name.php',
-                function(res){
-                    var add=JSON.parse(res);
-                    $(".cadd").html('欢迎'+add.name+'来到聊天室');
-                }
+            'http://chat.room.com/name.php',
+            function(res){
+                var add=JSON.parse(res);
+                $(".cadd").html('欢迎'+add.name+'来到聊天室');
+
+            }
         );
-
-
+        //下拉菜单查询
+            $.get(
+                    'http://chat.room.com/fd.php',
+                    function(res){
+                        var d =JSON.parse(res);
+                        $.each(d,function(i,v){
+                            $("#ccc").after("<option value="+v.fd+">"+v.name+"</option>");
+                        })
+                    }
+            );
     })
+
     var ws = new WebSocket("ws://character.com:9502");
     ws.onopen=function(){
+
         $("#sub").blur(function(){
             $("#bb").find("p").css('display','none');
         })
@@ -106,7 +116,6 @@
             }
         });
 
-
         $(document).on("click",'#sub',function () {
             var text=$("#text").val();
             if(text==""){
@@ -116,11 +125,13 @@
             var server=$("#usera").change().val();
             var uid= $.cookie('uid'); // 读取 cookie
             var ip= $.cookie('ip'); // 读取 cookie
+            var name= $.cookie('name'); // 读取 cookie
             var data={
                 type:"message",
                 text:text,
                 server:server,
                 id:uid,
+                name:name,
                 ip:ip,
                 data:Date.now()
             }
@@ -132,9 +143,10 @@
     ws.onmessage=function(d){
         var str = d.data;
         var data=JSON.parse(str);
-//        console.log(Number.parseInt(1561022284));
-        var name= $.cookie('name'); // 读取 cookie
-        $("#aa").append("<p id='p'>"+name+':'+data.text+"</p>").append('<br>')
+//        console.log(data);
+
+        var arr=JSON.parse(data.data);
+        $("#aa").append("<p>"+arr.name+"<span style='font-size: 6'>"+data.time+"</span></p><p id='p'>"+arr.text+"</p>").append('<br>')
         $('.bra').animate({scrollTop:1000},'slow');
     }
 </script>
